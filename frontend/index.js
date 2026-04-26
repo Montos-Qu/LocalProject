@@ -2,46 +2,74 @@ let web3;
 let account;
 let contract;
 
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
 async function connectWallet() {
-    if (window.ethereum) {
-        web3 = new Web3("http://127.0.0.1:7545");   // Default Ganache RPC
-        // await ethereum.request({ method: "eth_requestAccounts" });
-        
-        account = document.getElementById("walletAddress").value;
-        // save account
+    try {
+        web3 = new Web3("http://127.0.0.1:7545");
+
+        account = document.getElementById("walletAddress").value.trim();
+
+        if (!web3.utils.isAddress(account)) {
+            alert("Please enter a valid wallet address.");
+            return;
+        }
+
         localStorage.setItem("walletAddress", account);
 
         await loadContract();
         await moveToRolePage();
+
+    } catch (error) {
+        console.error(error);
+        alert("Login failed. Check console.");
     }
 }
 
 async function loadContract() {
-    let abiFile = await fetch("./contracts/UniversityCredential.json");
-    let json = await abiFile.json();
+    const abiFile = await fetch("./contracts/Admin.json");
+    const json = await abiFile.json();
 
-    let abi = json.abi;
-    let address = json.networks["5777"].address;  // Ganache network ID
+    const abi = json.abi;
+
+    // Safer than hardcoding 5777
+    const networkId = Object.keys(json.networks)[0];
+    const address = json.networks[networkId].address;
 
     contract = new web3.eth.Contract(abi, address);
+
+    const owner = await contract.methods.owner().call();
+    console.log("Frontend account:", account);
+    console.log("Contract owner:", owner);
+    console.log("Contract address:", address);
 }
 
 async function moveToRolePage() {
-    let admin = await contract.methods.admin().call();
+    const admin = await contract.methods.owner().call();
 
     if (account.toLowerCase() === admin.toLowerCase()) {
-        window.location.href = "admin.html"
+        window.location.href = "admin.html";
         return;
     }
 
-    const isIssuer = await contract.methods.approvedIssuers(account).call();
+    const studentContract = await contract.methods.wallet_to_student_map(account).call();
+    const issuerContract = await contract.methods.wallet_to_issuer_map(account).call();
+    const verifierContract = await contract.methods.wallet_to_verifier_map(account).call();
 
-    if (isIssuer) {
-        window.location.href = "issuer.html"
+    if (studentContract !== ZERO_ADDRESS) {
+        window.location.href = "student.html";
         return;
     }
 
-    // Go to user page if none of the above are true
-    window.location.href = "user.html"
-    return;
+    if (issuerContract !== ZERO_ADDRESS) {
+        window.location.href = "issuer.html";
+        return;
+    }
+
+    if (verifierContract !== ZERO_ADDRESS) {
+        window.location.href = "verifier.html";
+        return;
+    }
+
+    alert("This wallet is not registered.");
 }

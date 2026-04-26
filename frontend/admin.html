@@ -25,13 +25,31 @@
         <div class="main_content">
             <div class="control_panel">
                 <div id="Issuer_controls">
-                    <h4>Approve Issuer</h4>
-                    <input type="text" id="issuerAddress" placeholder="Enter address">
-                    <button type="button" class="btn btn-success" onclick="approveIssuer()">Approve</button>
-                    
-                    <h4>Revoke Issuer</h4>
-                    <input type="text" id="revokeIssuerAddress" placeholder="Enter addres">
-                    <button type="button" class="btn btn-danger" onclick="revokeIssuer()">Revoke</button>
+                    <h4>Add User Account</h4>
+
+                    <input type="text" id="userAddress" placeholder="Enter wallet address">
+                    <input type="text" id="username" placeholder="Enter name">
+
+                    <select id="accountType">
+                        <option value="1">Student</option>
+                        <option value="2">Issuer</option>
+                        <option value="3">Verifier</option>
+                    </select>
+
+                    <button type="button" class="btn btn-success" onclick="addUserAccount()">
+                        Add User
+                    </button>
+
+                    <hr>
+
+                    <h4>Remove Issuer</h4>
+
+                    <input type="number" id="issuerIndex" placeholder="Issuer index">
+                    <input type="text" id="removeIssuerAddress" placeholder="Issuer wallet address">
+
+                    <button type="button" class="btn btn-danger" onclick="removeIssuer()">
+                        Remove Issuer
+                    </button>
                 </div>
             </div>
         </div>

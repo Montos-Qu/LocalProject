@@ -10,7 +10,7 @@ async function init() {
     account = localStorage.getItem("walletAddress") || accounts[0];
     console.log("Using account:", account);
 
-    const response = await fetch("./contracts/UniversityCredential.json");
+    const response = await fetch("./contracts/Issuer.json");
     const json = await response.json();
 
     console.log("ABI loaded:", json);

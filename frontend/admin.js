@@ -6,46 +6,73 @@ async function init() {
     web3 = new Web3("http://127.0.0.1:7545");
 
     const accounts = await web3.eth.getAccounts();
-    
+
     account = localStorage.getItem("walletAddress") || accounts[0];
-    console.log("Using account:", account);
 
-    document.getElementById("accountAddress").innerHTML = `Connected: ${account}`;
+    document.getElementById("accountAddress").innerHTML =
+        `Connected: ${account}`;
 
-    const response = await fetch("./contracts/UniversityCredential.json");
+    const response = await fetch("./contracts/Admin.json");
     const json = await response.json();
 
-    console.log("ABI loaded:", json);
-
     const abi = json.abi;
-    const address = json.networks["5777"].address;
-    console.log("Contract address:", address);
+    const networkId = Object.keys(json.networks)[0];
+    const address = json.networks[networkId].address;
 
     contract = new web3.eth.Contract(abi, address);
-    console.log("Contract loaded:", contract);
+
+    console.log("Admin contract loaded:", contract);
+
+    const owner = await contract.methods.owner().call();
+    console.log("Frontend account:", account);
+    console.log("Contract owner:", owner);
+    console.log("Contract address:", address);
 }
 
 window.onload = init;
 
-async function approveIssuer() {
-    if (!contract) {
-        alert("Contract not loaded yet!");
-        return;
+async function addUserAccount() {
+    try {
+        const userAddress = document.getElementById("userAddress").value.trim();
+        const name = document.getElementById("username").value.trim();
+        const accountType = Number(document.getElementById("accountType").value);
+
+        if (!web3.utils.isAddress(userAddress)) {
+            alert("Invalid wallet address");
+            return;
+        }
+
+        await contract.methods
+            .addUserAccount(userAddress, name, accountType)
+            .send({
+                from: account,
+                gas: 6000000
+            });
+
+        alert("User added successfully!");
+    } catch (error) {
+        console.error("Add user failed:", error);
+        alert("Failed to add user. Check console.");
     }
-
-    let issuer = document.getElementById("issuerAddress").value;
-    console.log(issuer);
-
-    await contract.methods.ApproveIssuers(issuer).send({ from: account });
-
-    alert("Issuer approved!");
 }
 
-async function revokeIssuer() {
-    let issuer = document.getElementById("revokeIssuerAddress").value;
+async function removeIssuer() {
+    try {
+        const index = document.getElementById("issuerIndex").value;
+        const issuerAddress = document.getElementById("removeIssuerAddress").value;
 
-    await contract.methods.RevokeIssuers(issuer)
-        .send({ from: account });
+        if (!web3.utils.isAddress(issuerAddress)) {
+            alert("Invalid issuer address");
+            return;
+        }
 
-    alert("Issuer revoked!");
+        await contract.methods
+            .removeIssuer(index, issuerAddress)
+            .send({ from: account });
+
+        alert("Issuer removed successfully!");
+    } catch (error) {
+        console.error(error);
+        alert("Failed to remove issuer. Check console.");
+    }
 }
