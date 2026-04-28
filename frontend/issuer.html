@@ -25,7 +25,13 @@
                 <div id="Issuer_controls">
                     <h3>Issue Credential</h3>
                     <input type="text" id="userAddress" placeholder="Student wallet address">
-                    <input type="text" id="credentialType" placeholder="Credential type">
+                    <select id="credentialType">
+                        <option value="Diploma">Diploma</option>
+                        <option value="Transcript">Transcript</option>
+                        <option value="Bachelor Degree">Bachelor Degree</option>
+                        <option value="Master Degree">Master Degree</option>
+                        <option value="Certificate">Certificate</option>
+                    </select>
                     <input type="text" id="documentHash" placeholder="Document hash (bytes32)">
                     <button type="button" class="btn btn-success" onclick="issueCredential()">Issue</button>
                     <pre id="issueResult"></pre>
