@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>student Page</title>
+    <title>Verifier Page</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="student_styles.css">
+    <link rel="stylesheet" href="verifier_styles.css">
     <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
 </head>
 <body>
@@ -18,13 +18,16 @@
         <div class="main_content">
             <div class="content_title">
                 <h2>Verifier Control Panel</h2>
+                <pre id="verifierInfo"></pre>
             </div>
 
             <div class="control_panel">
-                <div id="student_credential_controls">
-                    <h3>View Credential</h3>
+                <div id="verifier_credential_controls">
+                    <h3>Verify Credential</h3>
+                    <input type="text" id="issuerContractAddress" placeholder="Issuer contract address">
                     <input type="number" id="credentialIdLookup" placeholder="Credential ID">
-                    <button type="button" class="btn btn-primary" onclick="viewCredential()">View</button>
+                    <input type="text" id="documentHash" placeholder="Document hash (bytes32)">
+                    <button type="button" class="btn btn-primary" onclick="verifyCredential()">Verify</button>
 
                     <pre id="credentialDetails"></pre>
                 </div>
@@ -33,6 +36,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
-    <script src="student.js"></script>
+    <script src="verifier.js"></script>
 </body>
 </html>
