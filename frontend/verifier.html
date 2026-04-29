@@ -26,7 +26,8 @@
                     <h3>Verify Credential</h3>
                     <input type="text" id="issuerContractAddress" placeholder="Issuer contract address">
                     <input type="number" id="credentialIdLookup" placeholder="Credential ID">
-                    <input type="text" id="documentHash" placeholder="Document hash (bytes32)">
+                    <input type="file" id="documentFile" accept="application/pdf,.pdf">
+                    <pre id="documentHashPreview"></pre>
                     <button type="button" class="btn btn-primary" onclick="verifyCredential()">Verify</button>
 
                     <pre id="credentialDetails"></pre>
