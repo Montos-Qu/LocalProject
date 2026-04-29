@@ -18,16 +18,23 @@
         <div class="main_content">
             <div class="content_title">
                 <h2>Issuer Control Panel</h2>
+                <pre id="issuerInfo"></pre>
             </div>
 
             <div class="control_panel">
                 <div id="Issuer_controls">
                     <h3>Issue Credential</h3>
-                    <input type="text" id="userAddress" placeholder="User address">
-                    <input type="text" id="credentialType" placeholder="Credential type">
+                    <input type="text" id="userAddress" placeholder="Student wallet address">
+                    <select id="credentialType">
+                        <option value="Diploma">Diploma</option>
+                        <option value="Transcript">Transcript</option>
+                        <option value="Bachelor Degree">Bachelor Degree</option>
+                        <option value="Master Degree">Master Degree</option>
+                        <option value="Certificate">Certificate</option>
+                    </select>
                     <input type="text" id="documentHash" placeholder="Document hash (bytes32)">
-                    <input type="text" id="ipfsCID" placeholder="IPFS CID">
                     <button type="button" class="btn btn-success" onclick="issueCredential()">Issue</button>
+                    <pre id="issueResult"></pre>
 
                     <h3>Revoke Credential</h3>
                     <input type="number" id="credentialIdRevoke" placeholder="Credential ID">
