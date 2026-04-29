@@ -32,7 +32,8 @@
                         <option value="Master Degree">Master Degree</option>
                         <option value="Certificate">Certificate</option>
                     </select>
-                    <input type="text" id="documentHash" placeholder="Document hash (bytes32)">
+                    <input type="file" id="documentFile" accept="application/pdf,.pdf">
+                    <pre id="documentHashPreview"></pre>
                     <button type="button" class="btn btn-success" onclick="issueCredential()">Issue</button>
                     <pre id="issueResult"></pre>
 

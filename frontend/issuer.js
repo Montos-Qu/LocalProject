@@ -19,6 +19,42 @@ function getDeployedAddress(artifact) {
     return artifact.networks[networkId].address;
 }
 
+function isPdfFile(file) {
+    return file && (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"));
+}
+
+function bytesToHex(bytes) {
+    return Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function hashPdfFile(file) {
+    if (!isPdfFile(file)) {
+        throw new Error("Please select a PDF document.");
+    }
+
+    const fileBytes = await file.arrayBuffer();
+    const digest = await crypto.subtle.digest("SHA-256", fileBytes);
+    return `0x${bytesToHex(new Uint8Array(digest))}`;
+}
+
+async function updateDocumentHashPreview() {
+    const fileInput = document.getElementById("documentFile");
+    const preview = document.getElementById("documentHashPreview");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        preview.innerText = "";
+        return;
+    }
+
+    try {
+        const hash = await hashPdfFile(file);
+        preview.innerText = `Selected file: ${file.name}\nSHA-256 document hash: ${hash}`;
+    } catch (error) {
+        preview.innerText = error.message;
+    }
+}
+
 async function init() {
     try {
         web3 = new Web3("http://127.0.0.1:7545");
@@ -43,6 +79,8 @@ async function init() {
         if (panel) {
             panel.innerText = `Issuer: ${info[1]}\nWallet: ${info[0]}\nContract: ${issuerAddress}`;
         }
+
+        document.getElementById("documentFile").addEventListener("change", updateDocumentHashPreview);
     } catch (error) {
         console.error("Issuer page failed to initialize:", error);
         alert("Unable to load issuer page. Check Ganache/Truffle deployment and console.");
@@ -55,7 +93,7 @@ async function issueCredential() {
     try {
         const user = document.getElementById("userAddress").value.trim();
         const type = document.getElementById("credentialType").value.trim();
-        const hash = document.getElementById("documentHash").value.trim();
+        const file = document.getElementById("documentFile").files[0];
 
         if (!web3.utils.isAddress(user)) {
             alert("Invalid student wallet address.");
@@ -65,10 +103,12 @@ async function issueCredential() {
             alert("Credential type is required.");
             return;
         }
-        if (!web3.utils.isHexStrict(hash) || hash.length !== 66) {
-            alert("Document hash must be a bytes32 hex value, for example web3.utils.keccak256(file contents).");
+        if (!file) {
+            alert("Please upload a PDF credential document.");
             return;
         }
+
+        const hash = await hashPdfFile(file);
 
         const receipt = await issuerContract.methods
             .IssueCredential(user, type, hash)
@@ -86,12 +126,12 @@ async function issueCredential() {
 
         const resultPanel = document.getElementById("issueResult");
         if (resultPanel) {
-            resultPanel.innerText = `Credential issued.\nCredential ID: ${credentialId}\nIssuer contract: ${issuerAddress}`;
+            resultPanel.innerText = `Credential issued.\nCredential ID: ${credentialId}\nIssuer contract: ${issuerAddress}\nDocument hash: ${hash}`;
         }
         alert("Credential issued!");
     } catch (error) {
         console.error("Issue credential failed:", error);
-        alert("Failed to issue credential. Check console.");
+        alert(error.message || "Failed to issue credential. Check console.");
     }
 }
 
