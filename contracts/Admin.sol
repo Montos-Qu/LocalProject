@@ -36,6 +36,12 @@ contract Admin {
     {
         require(userAddress != address(0), "Invalid user address");
         require(accountType >= 1 && accountType <= 3, "Invalid account type");
+        require(
+            wallet_to_student_map[userAddress] == address(0) &&
+            wallet_to_issuer_map[userAddress] == address(0) &&
+            wallet_to_verifier_map[userAddress] == address(0),
+            "User already registered!"
+        );
 
         if (accountType == 1) {
             Student new_student = new Student(owner, userAddress, name);
@@ -68,5 +74,47 @@ contract Admin {
         delete wallet_to_issuer_map[userAddress];
 
         return true;
+    }
+
+    function removeStudent(uint256 _index, address userAddress) public OwnerOnly returns (bool) {
+        if (_index >= registered_students.length) {
+            return false;
+        }
+
+        for (uint i = _index; i < registered_students.length - 1; i++) {
+            registered_students[i] = registered_students[i + 1];
+        }
+
+        registered_students.pop();
+        delete wallet_to_student_map[userAddress];
+
+        return true;
+    }
+
+    function removeVerifier(uint256 _index, address userAddress) public OwnerOnly returns (bool) {
+        if (_index >= verifiers.length) {
+            return false;
+        }
+
+        for (uint i = _index; i < verifiers.length - 1; i++) {
+            verifiers[i] = verifiers[i + 1];
+        }
+
+        verifiers.pop();
+        delete wallet_to_verifier_map[userAddress];
+
+        return true;
+    }
+
+    function getStudentCount() public view returns (uint256) {
+        return registered_students.length;
+    }
+
+    function getIssuerCount() public view returns (uint256) {
+        return approved_issuers.length;
+    }
+
+    function getVerifierCount() public view returns (uint256) {
+        return verifiers.length;
     }
 }

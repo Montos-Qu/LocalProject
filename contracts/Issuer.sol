@@ -90,6 +90,17 @@ contract Issuer {
         emit CredentialRevoked(credentialId);
     }
 
+    // Opposite of revoke credential
+    function RestoreCredential(uint256 credentialId) external {
+        Credential storage cred = credentials[credentialId];
+        require(cred.issuer == msg.sender, "Only the issuing issuer can revoke");   // Verify the issuer permission
+        require(cred.isRevoked, "Already active");                                // Check credential revoke status
+        
+        // Reactivate the credential, but the record is still kept on chain
+        cred.isRevoked = false;
+        emit CredentialRevoked(credentialId);
+    }
+
     // Verify that a credential is authentic and active
     function VerifyCredential(uint256 credentialId, bytes32 documentHash) external returns (bool isValid) {
         Credential storage cred = credentials[credentialId];

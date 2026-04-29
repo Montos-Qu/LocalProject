@@ -27,7 +27,7 @@ async function connectWallet() {
 }
 
 async function loadContract() {
-    const abiFile = await fetch("./contracts/Admin.json");
+    const abiFile = await fetch("contracts/Admin.json");
     const json = await abiFile.json();
 
     const abi = json.abi;
