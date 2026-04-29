@@ -25,6 +25,8 @@ The `Issuer` contract stores credential records. Each credential contains:
 - revoked status
 - issued timestamp
 
+The frontend calculates the document hash from uploaded PDF files using SHA-256. The resulting 32-byte hash is stored on-chain as `bytes32`; the PDF itself remains off-chain.
+
 ## Local Setup
 1. Install Truffle if it is not already installed:
 
@@ -59,11 +61,11 @@ http://localhost:8080/frontend/index.html
 1. Log in with the Ganache account that deployed `Admin`. This wallet is the admin.
 2. On the Admin page, add one Student wallet, one Issuer wallet, and one Verifier wallet.
 3. Log in with the Issuer wallet.
-4. Issue a credential to the Student wallet. The document hash must be a bytes32 hex string, such as a value produced by `web3.utils.keccak256("sample transcript")`.
+4. Issue a credential to the Student wallet by selecting a credential type and uploading the credential PDF. The frontend automatically calculates the PDF's SHA-256 document hash and stores that hash in the Issuer contract.
 5. Copy the displayed credential ID and Issuer contract address.
 6. Log in with the Student wallet and view the credential by entering the Issuer contract address and credential ID.
-7. Log in with the Verifier wallet and verify the credential by entering the Issuer contract address, credential ID, and original document hash.
-8. To demonstrate invalid credentials, verify with a different document hash or revoke the credential from the Issuer page and verify again.
+7. Log in with the Verifier wallet and verify the credential by entering the Issuer contract address, credential ID, and uploading the PDF being verified.
+8. To demonstrate invalid credentials, verify with a different PDF file or revoke the credential from the Issuer page and verify again.
 
 ## Usage idea draft
 The idea here is to have a web page that people can go to and log in to their respective accounts and interact with whatever their user type are allowed to do with the credentials. This way, we can ease the need for people to install and set up the program on their machines.
