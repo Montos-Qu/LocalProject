@@ -1,7 +1,69 @@
 # Team19_2026SpringB_CSE540_UniversityCredentialSystem_SmartContractDesign
 
 ## Abstract
-With the rise of digital information, it is getting increasingly difficult for companies and organizations to verify the authenticity of students’ degrees and transcripts. As a result, many cases of degree fraud and falsified transcripts have occurred over the years, and even more so in recent years. Thus, our team seeks to address the issue with a blockchain-based solution to verify authenticity and safely manage student degrees and transcripts.
+With the rise of digital information, it is getting increasingly difficult for companies and organizations to verify the authenticity of students' degrees and transcripts. As a result, many cases of degree fraud and falsified transcripts have occurred over the years, and even more so in recent years. Thus, our team seeks to address the issue with a blockchain-based solution to verify authenticity and safely manage student degrees and transcripts.
+
+## Project Overview
+This project is a blockchain-based university credential system built with Solidity, Truffle, Ganache, Web3.js, and a static HTML/CSS/JavaScript frontend.
+
+The system supports four roles:
+
+- Admin: deploys and manages user accounts.
+- Issuer: issues and revokes credentials.
+- Student: views issued credential records.
+- Verifier: validates a credential by checking its credential ID and document hash.
+
+## Contract Design
+The `Admin` contract is the entry point. It creates role-specific contracts for students, issuers, and verifiers, then maps each wallet address to its deployed role contract.
+
+The `Issuer` contract stores credential records. Each credential contains:
+
+- issuer wallet address
+- student wallet address
+- credential type
+- document hash
+- revoked status
+- issued timestamp
+
+## Local Setup
+1. Install Truffle if it is not already installed:
+
+```bash
+npm install -g truffle
+```
+
+2. Start Ganache on `http://127.0.0.1:7545`.
+
+3. Compile and migrate the contracts:
+
+```bash
+truffle compile
+truffle migrate --reset
+```
+
+4. Copy the generated contract artifacts from `build/contracts` into `frontend/contracts` if the artifacts changed after deployment.
+
+5. Serve the frontend from the repository root. For example:
+
+```bash
+python -m http.server 8080
+```
+
+6. Open the app in the browser:
+
+```text
+http://localhost:8080/frontend/index.html
+```
+
+## Demo Workflow
+1. Log in with the Ganache account that deployed `Admin`. This wallet is the admin.
+2. On the Admin page, add one Student wallet, one Issuer wallet, and one Verifier wallet.
+3. Log in with the Issuer wallet.
+4. Issue a credential to the Student wallet. The document hash must be a bytes32 hex string, such as a value produced by `web3.utils.keccak256("sample transcript")`.
+5. Copy the displayed credential ID and Issuer contract address.
+6. Log in with the Student wallet and view the credential by entering the Issuer contract address and credential ID.
+7. Log in with the Verifier wallet and verify the credential by entering the Issuer contract address, credential ID, and original document hash.
+8. To demonstrate invalid credentials, verify with a different document hash or revoke the credential from the Issuer page and verify again.
 
 ## Usage idea draft
 The idea here is to have a web page that people can go to and log in to their respective accounts and interact with whatever their user type are allowed to do with the credentials. This way, we can ease the need for people to install and set up the program on their machines.
