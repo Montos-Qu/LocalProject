@@ -4,6 +4,7 @@ let account;
 let adminContract;
 let issuerContractAddress;
 let uploadedFileRecord = null;
+let latestCredentialReceipt = null;
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
@@ -90,6 +91,7 @@ async function issueCredential() {
         const userAddress = document.getElementById("userAddress").value.trim();
         const credentialType = document.getElementById("credentialType").value.trim();
         const documentHash = document.getElementById("documentHash").value.trim();
+        const fileName = uploadedFileRecord?.fileName || "";
 
         if (!web3.utils.isAddress(userAddress)) {
             showStatus("Invalid student wallet address.", "danger");
@@ -111,6 +113,7 @@ async function issueCredential() {
 
         const eventData = receipt.events?.CredentialIssued?.returnValues;
         const credentialId = eventData?.credentialId || eventData?.[0];
+        const issuedAt = new Date().toLocaleString();
 
         const studentAddress = await adminContract.methods.wallet_to_student_map(userAddress).call();
         if (studentAddress !== ZERO_ADDRESS && credentialId) {
@@ -122,6 +125,18 @@ async function issueCredential() {
         if (uploadedFileRecord && credentialId) {
             saveCredentialFileOffChain(credentialId, uploadedFileRecord);
         }
+
+        latestCredentialReceipt = buildCredentialReceipt({
+            credentialId,
+            credentialType,
+            studentWallet: userAddress,
+            studentContractAddress: studentAddress,
+            documentHash,
+            fileName,
+            issuedAt,
+            transactionHash: receipt.transactionHash
+        });
+        renderCredentialReceipt(latestCredentialReceipt);
 
         showStatus(`Credential issued successfully. Credential ID: ${credentialId}`, "success");
         document.getElementById("userAddress").value = "";
@@ -136,6 +151,93 @@ async function issueCredential() {
         console.error(error);
         showStatus(`Issue failed: ${getErrorMessage(error)}`, "danger");
     }
+}
+
+function buildCredentialReceipt(details) {
+    return {
+        schema: "university-credential-receipt",
+        version: "1.0",
+        credentialId: String(details.credentialId),
+        credentialType: details.credentialType,
+        studentWallet: details.studentWallet,
+        studentContractAddress: details.studentContractAddress,
+        issuerWallet: account,
+        issuerContractAddress,
+        documentHash: details.documentHash,
+        fileName: details.fileName,
+        issuedAt: details.issuedAt,
+        transactionHash: details.transactionHash,
+        status: "Active"
+    };
+}
+
+function renderCredentialReceipt(receipt) {
+    const container = document.getElementById("credentialReceipt");
+    container.className = "card receipt-card mt-3";
+    container.innerHTML = `
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3><i class="fa-solid fa-receipt"></i> Credential Receipt</h3>
+            <div>
+                <button type="button" class="btn btn-light btn-sm" onclick="copyCredentialReceipt()">
+                    Copy
+                    <i class="fa-solid fa-copy"></i>
+                </button>
+                <button type="button" class="btn btn-warning btn-sm" onclick="downloadCredentialReceipt()">
+                    Download JSON
+                    <i class="fa-solid fa-download"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            ${renderReceiptRows(receipt)}
+        </div>
+    `;
+}
+
+function renderReceiptRows(receipt) {
+    const rows = [
+        ["Credential ID", receipt.credentialId],
+        ["Credential Type", receipt.credentialType],
+        ["Student Wallet", receipt.studentWallet],
+        ["Issuer Wallet", receipt.issuerWallet],
+        ["Issuer Contract Address", receipt.issuerContractAddress],
+        ["Document Hash", receipt.documentHash],
+        ["Issued At", receipt.issuedAt],
+        ["Status", receipt.status]
+    ];
+
+    return `
+        <div class="credential-detail-grid">
+            ${rows.map(([label, value]) => `
+                <div class="detail-label">${label}</div>
+                <div class="detail-value">${value || "N/A"}</div>
+            `).join("")}
+        </div>
+    `;
+}
+
+function downloadCredentialReceipt() {
+    if (!latestCredentialReceipt) {
+        showStatus("No credential receipt available yet.", "danger");
+        return;
+    }
+
+    const blob = new Blob([JSON.stringify(latestCredentialReceipt, null, 2)], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `credential-receipt-${latestCredentialReceipt.credentialId}.json`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
+
+async function copyCredentialReceipt() {
+    if (!latestCredentialReceipt) {
+        showStatus("No credential receipt available yet.", "danger");
+        return;
+    }
+
+    await navigator.clipboard.writeText(JSON.stringify(latestCredentialReceipt, null, 2));
+    showStatus("Credential receipt copied.", "success");
 }
 
 async function loadIssuedCredentials() {
