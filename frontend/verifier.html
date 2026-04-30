@@ -29,6 +29,10 @@
                         <h3><i class="fa-solid fa-shield-halved"></i> Verify Credential</h3>
                     </div>
                     <div class="card-body">
+                        <label class="form-label">Credential Receipt JSON</label>
+                        <input class="form-control mb-2" type="file" id="receiptFile" accept="application/json,.json" onchange="handleReceiptUpload()">
+                        <small id="receiptInfo" class="text-muted d-block mb-3"></small>
+
                         <label class="form-label">Issuer Contract Address</label>
                         <input class="form-control mb-3" type="text" id="issuerContractAddress" placeholder="Issuer contract address">
 
@@ -39,8 +43,11 @@
                         <input class="form-control" type="file" id="documentFile" accept="application/pdf,.pdf">
                         <pre id="documentHashPreview" class="mt-2"></pre>
 
-                        <button type="button" class="btn btn-primary" onclick="verifyCredential()">Verify</button>
-                        <pre id="credentialDetails" class="mt-3"></pre>
+                        <button type="button" class="btn btn-primary" onclick="verifyCredential()">
+                            Verify
+                            <i class="fa-solid fa-check-double"></i>
+                        </button>
+                        <div id="credentialDetails" class="mt-3"></div>
                     </div>
                 </div>
             </div>
