@@ -52,6 +52,28 @@ async function loadStudentInfo() {
         `Student: ${info[1]}\nWallet: ${info[0]}\nStudent contract: ${studentAddress}\nCredential IDs: ${info[2].length ? info[2].join(", ") : "none"}`;
 }
 
+async function handleReceiptUpload() {
+    try {
+        const file = document.getElementById("receiptFile").files[0];
+        if (!file) {
+            return;
+        }
+
+        const receipt = JSON.parse(await file.text());
+        if (receipt.schema !== "university-credential-receipt") {
+            throw new Error("This is not a supported credential receipt file.");
+        }
+
+        document.getElementById("issuerContractAddress").value = receipt.issuerContractAddress || "";
+        document.getElementById("credentialIdLookup").value = receipt.credentialId || "";
+        document.getElementById("receiptInfo").innerText = `${file.name} loaded for credential #${receipt.credentialId || "unknown"}.`;
+        showStatus("Receipt loaded. You can view the credential now.", "success");
+    } catch (error) {
+        console.error("Receipt upload failed:", error);
+        showStatus(error.message || "Could not read credential receipt.", "danger");
+    }
+}
+
 async function viewCredential() {
     try {
         const issuerContractAddress = document.getElementById("issuerContractAddress").value.trim();
@@ -71,6 +93,8 @@ async function viewCredential() {
         const data = await issuerContract.methods.GetCredential(id).call();
 
         const credential = {
+            credentialId: id,
+            issuerContractAddress,
             issuer: data.issuer,
             student: data.user,
             credentialType: data.credentialType,
@@ -79,12 +103,44 @@ async function viewCredential() {
             issuedAt: new Date(Number(data.issuedAt) * 1000).toLocaleString()
         };
 
-        document.getElementById("credentialDetails").innerText = JSON.stringify(credential, null, 2);
+        renderCredentialDetails(credential);
         showStatus("Credential loaded.", "success");
     } catch (error) {
         console.error("View credential failed:", error);
         showStatus("Failed to view credential. Check issuer contract address, credential ID, and console.", "danger");
     }
+}
+
+function renderCredentialDetails(credential) {
+    const container = document.getElementById("credentialDetails");
+    const statusClass = credential.isRevoked ? "danger" : "success";
+    const statusText = credential.isRevoked ? "Revoked" : "Active";
+
+    container.innerHTML = `
+        <div class="credential-result-card">
+            <div class="result-header">
+                <div>
+                    <div class="result-eyebrow">Credential #${credential.credentialId}</div>
+                    <h4>${credential.credentialType}</h4>
+                </div>
+                <span class="badge text-bg-${statusClass}">${statusText}</span>
+            </div>
+            <div class="credential-detail-grid">
+                ${renderDetailRow("Student Wallet", credential.student)}
+                ${renderDetailRow("Issuer Wallet", credential.issuer)}
+                ${renderDetailRow("Issuer Contract", credential.issuerContractAddress)}
+                ${renderDetailRow("Document Hash", credential.documentHash)}
+                ${renderDetailRow("Issued At", credential.issuedAt)}
+            </div>
+        </div>
+    `;
+}
+
+function renderDetailRow(label, value) {
+    return `
+        <div class="detail-label">${label}</div>
+        <div class="detail-value">${value || "N/A"}</div>
+    `;
 }
 
 function showStatus(message, type) {
