@@ -32,9 +32,94 @@
     padding: 10px;
 }
 
-.control_panel #Issuer_controls {
-    display: inline;
-    width: 800px;
+.card-header {
+    background-color: green;
+    color: white;
+    padding: 10px;
+}
+
+.credential-result-card {
+    border: 1px solid #d8dee4;
+    border-radius: 6px;
+    background: white;
+    overflow: hidden;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-bottom: 1px solid #d8dee4;
+}
+
+.result-header h4 {
+    margin: 0;
+    color: #111827;
+}
+
+.result-eyebrow {
+    color: #087a16;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.verification-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 10px;
+    padding: 14px 16px;
+    background: #f6f8fa;
+    border-bottom: 1px solid #d8dee4;
+}
+
+.check-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+.check-item.passed {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.check-item.failed {
+    background: #f8d7da;
+    color: #842029;
+}
+
+.credential-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(170px, 240px) minmax(0, 1fr);
+}
+
+.detail-label,
+.detail-value {
+    padding: 10px 12px;
+    border-bottom: 1px solid #d8dee4;
+}
+
+.detail-label {
+    background: #f6f8fa;
+    font-weight: 700;
+    color: #174d22;
+}
+
+.detail-value {
+    background: white;
+    word-break: break-all;
+    font-family: Consolas, monospace;
+}
+
+.detail-label:nth-last-child(2),
+.detail-value:last-child {
+    border-bottom: 0;
 }
 
 h5 {
