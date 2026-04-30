@@ -139,13 +139,14 @@ async function issueCredential() {
 }
 
 async function loadIssuedCredentials() {
+    const table = $("#issued_credential_table");
     const tableBody = document.getElementById("issuedCredentialsTableBody");
-    tableBody.innerHTML = "";
 
     if ($.fn.DataTable.isDataTable("#issued_credential_table")) {
-        $("#issued_credential_table").DataTable().destroy();
+        table.DataTable().clear().destroy();
     }
 
+    tableBody.innerHTML = "";
     const count = await contract.methods.credentialCount().call();
     let found = false;
 
@@ -174,11 +175,11 @@ async function loadIssuedCredentials() {
         }
     }
 
-    if (!found) {
+    if (found) {
+        table.DataTable();
+    } else {
         tableBody.innerHTML = `<tr><td colspan="7" class="text-center">No credentials issued by this account.</td></tr>`;
     }
-
-    $("#issued_credential_table").DataTable();
 }
 
 async function revokeCredential() {
