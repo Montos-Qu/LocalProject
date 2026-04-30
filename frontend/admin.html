@@ -4,7 +4,7 @@
     <title>Admin Page</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/admin_styles.css">
-    <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+    <script src="https://kit.fontawesome.com/94c96a59cb.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="myContainer">
@@ -19,43 +19,61 @@
             <h2>Admin Control Panel</h2>
             <div id="accountAddress"></div>
         </div>
-        
-        <hr>
 
         <div class="main_content">
+            <div class="table_title_bar">
+                <div class="table_name">User Account Management</div>
+                <div class="button_stuff">
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        Add New User <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
             <div class="control_panel">
-                <div id="Issuer_controls">
-                    <h4>Add User Account</h4>
+                <h4>Remove Issuer</h4>
+                <input type="number" id="issuerIndex" placeholder="Issuer index">
+                <input type="text" id="removeIssuerAddress" placeholder="Issuer wallet address">
+                <button type="button" class="btn btn-danger" onclick="removeIssuer()">Remove Issuer</button>
+            </div>
+        </div>
+    </div>
 
-                    <input type="text" id="userAddress" placeholder="Enter wallet address">
-                    <input type="text" id="username" placeholder="Enter name">
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="addUserModalLabel">
+                        <i class="fa-solid fa-user-plus"></i> Add User Account
+                    </h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
 
-                    <select id="accountType">
+                <div class="modal-body" id="add_user_modal">
+                    <label class="form-label">User Address</label>
+                    <input class="form-control mb-3" type="text" id="userAddress" placeholder="Enter wallet address">
+
+                    <label class="form-label">User Name</label>
+                    <input class="form-control mb-3" type="text" id="username" placeholder="Enter user's name">
+
+                    <label class="form-label">Account Type</label>
+                    <select class="form-select" id="accountType">
                         <option value="1">Student</option>
                         <option value="2">Issuer</option>
                         <option value="3">Verifier</option>
                     </select>
+                </div>
 
-                    <button type="button" class="btn btn-success" onclick="addUserAccount()">
-                        Add User
-                    </button>
-
-                    <hr>
-
-                    <h4>Remove Issuer</h4>
-
-                    <input type="number" id="issuerIndex" placeholder="Issuer index">
-                    <input type="text" id="removeIssuerAddress" placeholder="Issuer wallet address">
-
-                    <button type="button" class="btn btn-danger" onclick="removeIssuer()">
-                        Remove Issuer
-                    </button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="addUserAccount()">Submit</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="admin.js"></script>
 </body>
 </html>
