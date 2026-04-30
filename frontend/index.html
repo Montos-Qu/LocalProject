@@ -4,7 +4,6 @@
         <title>University Credential DApp</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="css/index_styles.css">
-        <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
     </head>
     <body>
         <div id="login_box">
@@ -19,7 +18,7 @@
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
-        <script src="index.js"></script>
+        <script src="js/index.js"></script>
     </body>
 </html>
 
@@ -33,7 +32,6 @@
     let i = 0;
     let j = 0;
     let isDeleting = false;
-
     const speed = 50;
     const eraseSpeed = 50;
     const delay = 1500;
@@ -49,12 +47,10 @@
         }
 
         let currentSpeed = isDeleting ? eraseSpeed : speed;
-
         if (!isDeleting && j === currentWord.length + 1) {
             currentSpeed = delay;
             isDeleting = true;
-        }
-        else if (isDeleting && j === 0) {
+        } else if (isDeleting && j === 0) {
             isDeleting = false;
             i = (i + 1) % words.length;
         }
