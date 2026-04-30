@@ -1,0 +1,80 @@
+.myContainer {
+    margin:auto;
+    align-items: center;
+}
+
+.title_card {
+    background-color: green;
+    font-weight: 400px;
+    padding: 5px;
+}
+
+.main_content {
+    margin: 10px;
+    border-radius: 5px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.content_title {
+    text-align: center;
+    color: green;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-weight: 900;
+}
+
+table th {
+    width: auto !important;
+}
+
+.table_title_bar {
+    display: flex;
+    background-color: rgb(234, 234, 234);
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.table_name {
+    flex: 5;
+    display: flex;
+    align-items: center;
+    color:black;
+    font-weight: 900;
+    font-size: 16px;
+}
+
+.button_stuff {
+    flex: 5;
+    display: flex;
+    justify-content: right;
+}
+
+h5 {
+    background-color: rgb(22, 126, 41);
+    border-radius: 5px;
+    color: white;
+    padding: 5px;
+    font-weight: 400;
+    text-align: center;
+}
+
+thead {
+    background-color: green;
+    color:white;
+}
+
+#myTable {
+    padding: 10px 0px;
+}
+
+.modal-header {
+    background-color: green;
+    color: white;
+}
+
+#usersTable {
+    padding-top: 5px;
+}
