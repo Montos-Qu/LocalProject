@@ -2,6 +2,7 @@ let web3;
 let adminContract;
 let account;
 let verifierAddress;
+let loadedReceipt = null;
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
@@ -84,6 +85,29 @@ async function init() {
 
 window.onload = init;
 
+async function handleReceiptUpload() {
+    try {
+        const file = document.getElementById("receiptFile").files[0];
+        if (!file) {
+            return;
+        }
+
+        loadedReceipt = JSON.parse(await file.text());
+        if (loadedReceipt.schema !== "university-credential-receipt") {
+            throw new Error("This is not a supported credential receipt file.");
+        }
+
+        document.getElementById("issuerContractAddress").value = loadedReceipt.issuerContractAddress || "";
+        document.getElementById("credentialIdLookup").value = loadedReceipt.credentialId || "";
+        document.getElementById("receiptInfo").innerText = `${file.name} loaded for credential #${loadedReceipt.credentialId || "unknown"}.`;
+        showStatus("Receipt loaded. Upload the matching PDF and verify.", "success");
+    } catch (error) {
+        loadedReceipt = null;
+        console.error("Receipt upload failed:", error);
+        showStatus(error.message || "Could not read credential receipt.", "danger");
+    }
+}
+
 async function verifyCredential() {
     try {
         const issuerContractAddress = document.getElementById("issuerContractAddress").value.trim();
@@ -111,22 +135,75 @@ async function verifyCredential() {
         const data = await issuerContract.methods.GetCredential(id).call();
 
         const result = {
+            credentialId: id,
             valid: isValid,
             revoked: data.isRevoked,
+            issuerContractAddress,
             issuer: data.issuer,
             student: data.user,
             credentialType: data.credentialType,
             uploadedDocumentHash: hash,
             storedDocumentHash: data.documentHash,
+            receiptDocumentHash: loadedReceipt?.documentHash || "",
             issuedAt: new Date(Number(data.issuedAt) * 1000).toLocaleString()
         };
 
-        document.getElementById("credentialDetails").innerText = JSON.stringify(result, null, 2);
+        renderVerificationResult(result);
         showStatus(isValid ? "Credential is valid." : "Credential is invalid or revoked.", isValid ? "success" : "danger");
     } catch (error) {
         console.error("Verify credential failed:", error);
         showStatus(error.message || "Failed to verify credential. Check inputs and console.", "danger");
     }
+}
+
+function renderVerificationResult(result) {
+    const container = document.getElementById("credentialDetails");
+    const hashMatchesReceipt = !result.receiptDocumentHash || result.receiptDocumentHash.toLowerCase() === result.uploadedDocumentHash.toLowerCase();
+    const statusClass = result.valid ? "success" : "danger";
+    const statusText = result.valid ? "Valid" : "Invalid";
+
+    container.innerHTML = `
+        <div class="credential-result-card">
+            <div class="result-header">
+                <div>
+                    <div class="result-eyebrow">Credential #${result.credentialId}</div>
+                    <h4>${result.credentialType}</h4>
+                </div>
+                <span class="badge text-bg-${statusClass}">${statusText}</span>
+            </div>
+            <div class="verification-summary">
+                ${renderCheckItem("On-chain credential", result.valid && !result.revoked)}
+                ${renderCheckItem("Document hash match", result.uploadedDocumentHash.toLowerCase() === result.storedDocumentHash.toLowerCase())}
+                ${renderCheckItem("Receipt hash match", hashMatchesReceipt)}
+                ${renderCheckItem("Not revoked", !result.revoked)}
+            </div>
+            <div class="credential-detail-grid">
+                ${renderDetailRow("Student Wallet", result.student)}
+                ${renderDetailRow("Issuer Wallet", result.issuer)}
+                ${renderDetailRow("Issuer Contract", result.issuerContractAddress)}
+                ${renderDetailRow("Uploaded PDF Hash", result.uploadedDocumentHash)}
+                ${renderDetailRow("Stored Document Hash", result.storedDocumentHash)}
+                ${renderDetailRow("Receipt Document Hash", result.receiptDocumentHash || "No receipt uploaded")}
+                ${renderDetailRow("Issued At", result.issuedAt)}
+            </div>
+        </div>
+    `;
+}
+
+function renderCheckItem(label, passed) {
+    return `
+        <div class="check-item ${passed ? "passed" : "failed"}">
+            <i class="fa-solid ${passed ? "fa-circle-check" : "fa-circle-xmark"}"></i>
+            <span>${label}</span>
+        </div>
+    `;
+}
+
+function renderDetailRow(label, value) {
+    return `
+        <div class="detail-label">${label}</div>
+        <div class="detail-value">${value || "N/A"}</div>
+    `;
 }
 
 function showStatus(message, type) {
