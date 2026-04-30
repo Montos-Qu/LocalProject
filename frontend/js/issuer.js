@@ -139,16 +139,16 @@ async function issueCredential() {
 }
 
 async function loadIssuedCredentials() {
-    const table = $("#issued_credential_table");
+    const tableSelector = "#issued_credential_table";
+    const table = $(tableSelector);
     const tableBody = document.getElementById("issuedCredentialsTableBody");
 
-    if ($.fn.DataTable.isDataTable("#issued_credential_table")) {
+    if ($.fn.DataTable.isDataTable(tableSelector)) {
         table.DataTable().clear().destroy();
     }
 
     tableBody.innerHTML = "";
     const count = await contract.methods.credentialCount().call();
-    let found = false;
 
     for (let i = 1; i <= count; i++) {
         try {
@@ -157,7 +157,6 @@ async function loadIssuedCredentials() {
                 continue;
             }
 
-            found = true;
             const fileRecord = getCredentialFileOffChain(i);
             const row = document.createElement("tr");
             row.innerHTML = `
@@ -175,11 +174,12 @@ async function loadIssuedCredentials() {
         }
     }
 
-    if (found) {
-        table.DataTable();
-    } else {
-        tableBody.innerHTML = `<tr><td colspan="7" class="text-center">No credentials issued by this account.</td></tr>`;
-    }
+    table.DataTable({
+        destroy: true,
+        language: {
+            emptyTable: "No credentials issued by this account."
+        }
+    });
 }
 
 async function revokeCredential() {
